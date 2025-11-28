@@ -1,0 +1,38 @@
+// Prisma schema for SMS Receiver App
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x", "darwin-arm64"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model PhoneNumber {
+  id          String    @id @default(uuid())
+  number      String    @unique
+  country     String
+  countryCode String    @map("country_code")
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  messages    Message[]
+
+  @@map("phone_numbers")
+}
+
+model Message {
+  id            String      @id @default(uuid())
+  from          String
+  to            String
+  body          String
+  twilioSid     String?     @unique @map("twilio_sid")
+  receivedAt    DateTime    @default(now()) @map("received_at")
+  phoneNumber   PhoneNumber @relation(fields: [phoneNumberId], references: [id], onDelete: Cascade)
+  phoneNumberId String      @map("phone_number_id")
+
+  @@index([phoneNumberId])
+  @@index([receivedAt])
+  @@map("messages")
+}

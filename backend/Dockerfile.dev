@@ -1,0 +1,22 @@
+# Backend Development Dockerfile - Optimized for Apple Silicon (M4 Mac)
+FROM --platform=linux/arm64 node:20-alpine
+
+WORKDIR /app
+
+# Copy package files and prisma schema
+COPY package*.json ./
+COPY prisma ./prisma/
+
+# Install dependencies
+RUN npm ci
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Copy source files
+COPY . .
+
+EXPOSE 3001
+
+# Use ts-node-dev for hot reload
+CMD ["npm", "run", "dev"]
