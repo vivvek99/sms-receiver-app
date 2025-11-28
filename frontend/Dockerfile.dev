@@ -1,0 +1,18 @@
+# Frontend Development Dockerfile - Optimized for Apple Silicon (M4 Mac)
+FROM --platform=linux/arm64 node:20-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy source files
+COPY . .
+
+EXPOSE 3000
+
+# Use Next.js development server with hot reload
+CMD ["npm", "run", "dev"]
