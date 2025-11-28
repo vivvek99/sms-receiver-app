@@ -2,10 +2,21 @@ import { Request, Response, NextFunction } from 'express';
 import { phoneService, messageService } from '../services';
 import { Server as SocketIOServer } from 'socket.io';
 
-let io: SocketIOServer | null = null;
+// Socket.IO instance management using singleton pattern
+class SocketManager {
+  private static instance: SocketIOServer | null = null;
+
+  static setInstance(io: SocketIOServer): void {
+    SocketManager.instance = io;
+  }
+
+  static getInstance(): SocketIOServer | null {
+    return SocketManager.instance;
+  }
+}
 
 export function setSocketIO(socketIO: SocketIOServer): void {
-  io = socketIO;
+  SocketManager.setInstance(socketIO);
 }
 
 export async function handleTwilioWebhook(
@@ -44,10 +55,10 @@ export async function handleTwilioWebhook(
 
     console.log(`[Webhook] Message stored with ID: ${message.id}`);
 
-    // Emit to connected WebSocket clients
+    // Emit to connected WebSocket clients who subscribed to this phone
+    const io = SocketManager.getInstance();
     if (io) {
       io.to(`phone:${phone.id}`).emit('new_message', message);
-      io.emit('new_message', message); // Also broadcast to all clients
     }
 
     // Respond with empty TwiML

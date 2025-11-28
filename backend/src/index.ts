@@ -28,7 +28,7 @@ setSocketIO(io);
 
 // Middleware
 app.use(helmet({
-  contentSecurityPolicy: false, // Disable for development
+  contentSecurityPolicy: config.nodeEnv === 'production' ? undefined : false,
 }));
 app.use(cors(config.cors));
 app.use(morgan(config.nodeEnv === 'production' ? 'combined' : 'dev'));

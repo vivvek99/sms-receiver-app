@@ -32,8 +32,3 @@ export interface PaginatedResponse<T> {
     totalPages: number;
   };
 }
-
-export interface WebSocketMessage {
-  type: 'new_message' | 'connection' | 'error';
-  data: Message | string;
-}
